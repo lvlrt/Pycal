@@ -39,7 +39,7 @@ def extract_startendpoint(timepointsstring):
         start_point = timepointsstring[:split_place]
         end_point = timepointsstring[split_place+1:]
     else:
-        print("Incorrect number of times specified")
+        #print("Incorrect number of times specified")
         return timepointsstring, timepointsstring;
         #fixed here
     return start_point, end_point;
@@ -273,8 +273,8 @@ def filter_lines_date(calendar, day, month, year, ask_date):
                         elif f_end_month == month:
                             if f_end_day >=day:
                                 add=True
-        else:
-            print("error in file: line:" + str(line_nr))
+        #else:
+            #print("error in file: line:" + str(line_nr))
         if add==True:
             ls.append([line_nr, start_date, start_time, end_date, end_time, event])
             high_line_nr = line_nr
@@ -323,7 +323,9 @@ def list_events_day(calendar, date):
         month=int(translatedate.strftime("%m"))
         year=int(translatedate.strftime("%y"))
         date = create_date(day, month, year)
-        print("+"+ str(add) + " ~" + translatedate.strftime("%a")  + " " + date + ':')
+        #print("+"+ str(add) + " ~" + translatedate.strftime("%a")  + " " + date + ':')
+        os.system("echo -e '\033[1;34m+"+ str(add) + " ~" + translatedate.strftime("%a")  + " " + date + ":\033[0m'")
+        #Here make this print green? of blauw?
         filter_lines_date(calendar, day, month, year, date)
     elif date[0] == "-":
         add = int(date[1:])
@@ -332,7 +334,8 @@ def list_events_day(calendar, date):
         month=int(translatedate.strftime("%m"))
         year=int(translatedate.strftime("%y"))
         date = create_date(day, month, year)
-        print("-"+ str(add) + " ~" + translatedate.strftime("%a")  + " " + date + ':')
+        #print("-"+ str(add) + " ~" + translatedate.strftime("%a")  + " " + date + ':')
+        os.system("echo -e '\033[1;34m-"+ str(add) + " ~" + translatedate.strftime("%a")  + " " + date + ":\033[0m'")
         filter_lines_date(calendar, day, month, year, date)
         
     ###hier een range met - en dat laten oplossen door de pointstrings en dan inrementies met de translatedate en vergelijken
@@ -399,11 +402,10 @@ def add_event(date, event, calendar):
     f.close()
     
 def delete_event(calendar, line_nr):
-    start= sys.argv[2]
-    start = int(start)
+    line_nr= int(line_nr)
  
     for line in fileinput.input(calendar, inplace=1, backup='.orig'):
-        if start <= fileinput.lineno() <start+1:
+        if line_nr <= fileinput.lineno() <line_nr+1:
             pass
         else:
             print(line[:-1])
@@ -412,6 +414,7 @@ def delete_event(calendar, line_nr):
     print("DELETED:")
     os.system('grep -F -x -v -f '+ calendar + ' ' +calendar+'.orig')
     
+#def search_event(calendar,
 ####SCRIPT beyong this line
 len_sysargv = len(sys.argv)
 if len_sysargv == 1:
@@ -429,7 +432,13 @@ elif sys.argv[1] == "ls":
         print("too much arguments")
     """elif sys.argv[1] = "list":
     #same as above"""
-   
+elif sys.argv[1] == "r":
+    if len_sysargv == 2:
+        for d in range(0,7):
+            list_events_day(calendarfile , '+'+str(d))
+    if len_sysargv == 3:
+        for d in range(0,int(sys.argv[2])):
+            list_events_day(calendarfile, '+'+str(d))
 elif len_sysargv != 2:
     if sys.argv[1] == "a":
         arg_event = 3
@@ -454,3 +463,6 @@ elif len_sysargv != 2:
     elif sys.argv[1] =="rm":
         line_nr=sys.argv[2]
         delete_event(calendarfile, line_nr)
+    elif sys.argv[1] =="s":
+        search_term=sys.argv[2]
+        search_event(calendarfile, search_term)
